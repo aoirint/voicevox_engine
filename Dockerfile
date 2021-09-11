@@ -302,3 +302,25 @@ EOT
 EOF
 
 CMD [ "bash", "/build.sh" ]
+
+
+# Binary (build result) and build environment image
+FROM build-env AS build-env-with-binary
+
+ARG HOST_NUITKA_CACHE_DIR=cache/Nuitka
+# Build binary (Nuitka cache will be exported to ./cache/Nuitka on host machine)
+RUN --mount=type=bind,source="${HOST_NUITKA_CACHE_DIR}",target="/home/user/.cache/Nuitka",rw <<EOF
+    bash /build.sh
+EOF
+
+# Binary execution image for CPU
+FROM runtime-env AS binary-env
+COPY --from=build-env-with-binary /opt/voicevox_engine_build /opt/voicevox_engine_build
+
+CMD [ "gosu", "user", "/opt/voicevox_engine_build/run", "--voicevox_dir", "/opt/voicevox_core/", "--voicelib_dir", "/opt/voicevox_core/", "--host", "0.0.0.0" ]
+
+# Binary execution image for nvidia
+FROM runtime-nvidia-env AS binary-nvidia-env
+COPY --from=build-env-with-binary /opt/voicevox_engine_build /opt/voicevox_engine_build
+
+CMD [ "gosu", "user", "/opt/voicevox_engine_build/run", "--use_gpu", "--voicevox_dir", "/opt/voicevox_core/", "--voicelib_dir", "/opt/voicevox_core/", "--host", "0.0.0.0" ]
