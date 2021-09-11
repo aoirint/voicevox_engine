@@ -65,3 +65,25 @@ run-linux-docker-build-env:
 		-v "$(shell pwd)/cache/Nuitka:/home/user/.cache/Nuitka" \
 		-v "$(shell pwd)/build:/opt/voicevox_engine_build" \
 		hiroshiba/voicevox_engine:build-env-cpu-ubuntu20.04-latest $(CMD)
+
+# Build linux binary during docker build
+.PHONY: build-linux-docker-build-env-with-binary
+build-linux-docker-build-env-with-binary:
+	docker buildx build . \
+		-t hiroshiba/voicevox_engine:build-env-with-binary-cpu-ubuntu20.04-latest \
+		--target build-env-with-binary \
+		--progress plain \
+		--build-arg BASE_IMAGE=ubuntu:focal \
+		--build-arg BASE_RUNTIME_IMAGE=ubuntu:focal \
+		--build-arg HOST_NUITKA_CACHE_DIR=cache/Nuitka
+
+.PHONY: run-linux-docker-build-env-with-binary
+run-linux-docker-build-env-with-binary:
+	docker run --rm -it \
+		hiroshiba/voicevox_engine:build-env-with-binary-cpu-ubuntu20.04-latest $(CMD)
+
+.PHONY: extract-linux-docker-build-env-with-binary
+extract-linux-docker-build-env-with-binary:
+	CID=$(shell docker run --rm -d hiroshiba/voicevox_engine:build-env-with-binary-cpu-ubuntu20.04-latest tail -f /dev/null) && \
+	docker cp "$${CID}:/opt/voicevox_engine_build/run.dist" "$(shell pwd)/build" && \
+	docker rm -f "$${CID}"

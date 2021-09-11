@@ -17,9 +17,9 @@ jobs:
       matrix:
         include:
         - os: ubuntu-latest
-          tag: build-env-cpu-ubuntu20.04
+          tag: build-env-with-binary-cpu-ubuntu20.04-latest
           runtime_tag: cpu-ubuntu20.04 # for cache use
-          target: build-env
+          target: build-env-with-binary
           base_image: ubuntu:focal
           base_runtime_image: ubuntu:focal
           inference_device: cpu
@@ -41,9 +41,24 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      # Build run.py with Nuitka during docker build
+      - name: Cache Nuitka (ccache, module-cache)
+        uses: actions/cache@v2
+        id: nuitka-cache
+        with:
+          path: ${{ matrix.nuitka_cache_path }}
+          key: ${{ runner.os }}-nuitka-${{ matrix.target }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-nuitka-${{ matrix.target }}-
+
+      # error: failed to solve: failed to compute cache key: "/cache/Nuitka" not found: not found
+      - name: Create cache dir (prevent cache key not found error)
+        run: |
+          mkdir -p "${{ matrix.nuitka_cache_path }}"
+
       # NOTE: `load: true` may silently fail when the GitHub Actions disk (14GB) is full.
       # https://docs.github.com/ja/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources
-      - name: Create binary build environment with Docker
+      - name: Build binary during docker build
         uses: docker/build-push-action@v2
         env:
           IMAGE_TAG: ${{ env.IMAGE_NAME }}:${{ matrix.tag }}${{ (matrix.tag != '' && '-') || '' }}latest
@@ -57,6 +72,7 @@ jobs:
             BASE_RUNTIME_IMAGE=${{ matrix.base_runtime_image }}
             INFERENCE_DEVICE=${{ matrix.inference_device }}
             LIBTORCH_URL=${{ matrix.libtorch_url }}
+            HOST_NUITKA_CACHE_DIR=${{ matrix.nuitka_cache_path }}
           target: ${{ matrix.target }}
           load: true
           tags: |
@@ -66,24 +82,14 @@ jobs:
             type=registry,ref=${{ env.RUNTIME_IMAGE_TAG }}-buildcache
           cache-to: type=registry,ref=${{ env.IMAGE_TAG }}-buildcache,mode=max
 
-      # Build run.py with Nuitka in Docker
-      - name: Cache Nuitka (ccache, module-cache)
-        uses: actions/cache@v2
-        id: nuitka-cache
-        with:
-          path: ${{ matrix.nuitka_cache_path }}
-          key: ${{ runner.os }}-nuitka-${{ matrix.target }}-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-nuitka-${{ matrix.target }}-
-
-      - name: Build run.py with Nuitka in Docker
+      # Extract binary
+      - name: Extract run.py binary from local Docker image
         env:
           IMAGE_TAG: ${{ env.IMAGE_NAME }}:${{ matrix.tag }}${{ (matrix.tag != '' && '-') || '' }}latest
         run: |
-          docker run --rm \
-            -v "$(readlink -f "${{ matrix.nuitka_cache_path }}"):/home/user/.cache/Nuitka" \
-            -v "$(readlink -f "build"):/opt/voicevox_engine_build" \
-            "${{ env.IMAGE_TAG }}"
+          CID=$(docker run --rm -d "${{ env.IMAGE_TAG }}" tail -f /dev/null)
+          docker cp "${CID}:/opt/voicevox_engine_build" "$(readlink -f "build")"
+          docker rm -f "${CID}"
 
       - uses: actions/upload-artifact@v2
         with:
