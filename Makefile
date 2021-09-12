@@ -1,3 +1,4 @@
+ROOT_DIR=$(dir $(realpath $(firstword $(MAKEFILE_LIST))))
 CMD=
 
 .PHONY: build-linux-docker-ubuntu
@@ -6,7 +7,9 @@ build-linux-docker-ubuntu:
 		-t hiroshiba/voicevox_engine:cpu-ubuntu20.04-latest \
 		--target runtime-env \
 		--progress plain \
-		--build-arg BASE_RUNTIME_IMAGE=ubuntu:focal
+		--build-arg BASE_RUNTIME_IMAGE=ubuntu:focal \
+		--build-arg VOICEVOX_CORE_VERSION=0.5.2 \
+		--build-arg VOICEVOX_CORE_EXAMPLE_VERSION=0.5.2
 
 .PHONY: run-linux-docker-ubuntu
 run-linux-docker-ubuntu:
