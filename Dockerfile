@@ -240,3 +240,45 @@ CMD [ "gosu", "user", "/opt/python/bin/python3", "./run.py", "--voicevox_dir", "
 # Enable use_gpu
 FROM runtime-env AS runtime-nvidia-env
 CMD [ "gosu", "user", "/opt/python/bin/python3", "./run.py", "--use_gpu", "--voicevox_dir", "/opt/voicevox_core/", "--voicelib_dir", "/opt/voicevox_core/", "--host", "0.0.0.0" ]
+
+
+# Ubuntu 18.04 Workaround Stage
+# - Use LibTorch and libcore 0.5.2
+FROM runtime-env AS runtime-bionic-env
+
+# Workaround for libcore 0.5.2 dependency issue
+# - Install libstdc++ which supports GLIBCXX_3.4.26
+RUN <<EOF
+    apt-get update
+    apt-get install -y \
+        software-properties-common
+
+    # https://launchpad.net/~ubuntu-toolchain-r/+archive/ubuntu/test
+    add-apt-repository ppa:ubuntu-toolchain-r/test
+
+    apt-get update
+    apt-get install -y \
+        gcc-10 \
+        g++-10
+    apt-get clean
+    rm -rf /var/lib/apt/lists/*
+EOF
+
+# Workaround for LibTorch link issue
+# - use LD_LIBRARY_PATH instead of ldconfig (/etc/ld.so.conf.d/)
+# - https://discuss.pytorch.org/t/libtorch-c-so-files-truncated-error-when-ldconfig/46404/6
+RUN <<EOF
+    cat <<EOT > /entrypoint.sh
+        #!/bin/bash
+        set -eu
+        cat /opt/voicevox_core/README.txt > /dev/stderr
+
+        export LD_LIBRARY_PATH="/opt/libtorch/lib:\${LD_LIBRARY_PATH:-}"
+
+        exec "\$@"
+EOT
+    chmod +x /entrypoint.sh
+EOF
+
+FROM runtime-bionic-env AS runtime-nvidia-bionic-env
+CMD [ "gosu", "user", "/opt/python/bin/python3", "./run.py", "--use_gpu", "--voicevox_dir", "/opt/voicevox_core/", "--voicelib_dir", "/opt/voicevox_core/", "--host", "0.0.0.0" ]
