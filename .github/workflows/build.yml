@@ -404,7 +404,6 @@ jobs:
         run: |
           # compressed to artifact.7z.001, artifact.7z.002, ...
           7z -r -v1g a "${{ matrix.artifact_name }}.7z" "${{ matrix.artifact_name }}/"
-          ls *.7z.* | tee "${{ matrix.artifact_name }}.7z.txt"
 
           # Output splitted archive list
           ls "${{ matrix.artifact_name }}.7z.*" | tee "${{ matrix.artifact_name }}.7z.txt"
