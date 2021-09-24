@@ -404,6 +404,10 @@ jobs:
         run: |
           # compressed to artifact.7z.001, artifact.7z.002, ...
           7z -r -v1g a "${{ matrix.artifact_name }}.7z" "${{ matrix.artifact_name }}/"
+          ls *.7z.* | tee "${{ matrix.artifact_name }}.7z.txt"
+
+          # Output splitted archive list
+          ls "${{ matrix.artifact_name }}.7z.*" | tee "${{ matrix.artifact_name }}.7z.txt"
 
       - name: Upload splitted archives to Release assets
         uses: svenstaro/upload-release-action@v2
@@ -411,4 +415,4 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ github.ref }} # == github.event.release.tag_name
           file_glob: true
-          file: "./${{ matrix.artifact_name }}.7z.*"
+          file: "${{ matrix.artifact_name }}.7z.*"
