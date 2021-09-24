@@ -397,6 +397,7 @@ jobs:
       - name: Download and extract artifact
         uses: dawidd6/action-download-artifact@v2
         with:
+          workflow: ${{ github.workflow }}
           run_id: ${{ github.run_id }}
           name: ${{ matrix.artifact_name }}
           path: ${{ matrix.artifact_name }}/
