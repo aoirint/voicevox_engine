@@ -400,7 +400,6 @@ jobs:
           workflow: ${{ github.run_id }}
           name: ${{ matrix.artifact_name }}
           path: ${{ matrix.artifact_name }}/
-          workflow_conclusion: success
 
       - name: Rearchive and split artifact
         run: |
