@@ -123,8 +123,9 @@ jobs:
     if: github.event.release.tag_name != ''
     needs: [build-linux]
     runs-on: ubuntu-latest
-    matrix:
-      artifact_name: [linux-cpu, linux-nvidia]
+    strategy:
+      matrix:
+        artifact_name: [linux-cpu, linux-nvidia]
     steps:
       - uses: actions/checkout@v2
 
