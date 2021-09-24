@@ -405,7 +405,7 @@ jobs:
       - name: Rearchive and split artifact
         run: |
           # compressed to artifact.7z.001, artifact.7z.002, ...
-          7z -v1g a "${{ matrix.artifact_name }}.7z" "${{ matrix.artifact_name }}/"
+          7z -r -v1g a "${{ matrix.artifact_name }}.7z" "${{ matrix.artifact_name }}/"
 
       - name: Upload splitted archives to Release assets
         uses: svenstaro/upload-release-action@v2
