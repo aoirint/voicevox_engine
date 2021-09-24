@@ -119,43 +119,6 @@ jobs:
           name: ${{ matrix.artifact_name }}
           path: build/run.dist/
 
-  upload-linux:
-    if: github.event.release.tag_name != ''
-    needs: [build-linux]
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        artifact_name: [linux-cpu, linux-nvidia]
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Install dependencies
-        run: |
-          apt-get update
-          apt-get install -y \
-              p7zip-full
-
-      - name: Download and extract artifact
-        uses: dawidd6/action-download-artifact@v2
-        with:
-          workflow: ${{ github.event.workflow_run.workflow_id }}
-          name: ${{ matrix.artifact_name }}
-          path: ${{ matrix.artifact_name }}-${{ github.ref }}/
-          workflow_conclusion: success
-
-      - name: Rearchive and split artifact
-        run: |
-          # compressed to artifact.7z.001, artifact.7z.002, ...
-          7z -v1g a "${{ matrix.artifact_name }}-${{ github.ref }}.7z" "${{ matrix.artifact_name }}-${{ github.ref }}/"
-
-      - name: Upload splitted archives to Release assets
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ github.ref }} # == github.event.release.tag_name
-          file_glob: true
-          file: "./${{ matrix.artifact_name }}-${{ github.ref }}.7z.*"
-
 
   build-windows:
     strategy:
@@ -409,3 +372,45 @@ jobs:
           name: ${{ matrix.artifact_name }}
           path: |
             artifact/
+
+
+  upload-to-release:
+    if: github.event.release.tag_name != ''
+    needs: [build-linux, build-windows]
+    runs-on: ubuntu-latest
+    strategy:
+    matrix:
+      artifact_name:
+        - linux-cpu
+        - linux-nvidia
+        - windows-cpu
+        - windows-nvidia
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install dependencies
+      run: |
+        apt-get update
+        apt-get install -y \
+            p7zip-full
+
+    - name: Download and extract artifact
+      uses: dawidd6/action-download-artifact@v2
+      with:
+        workflow: ${{ github.event.workflow_run.workflow_id }}
+        name: ${{ matrix.artifact_name }}
+        path: ${{ matrix.artifact_name }}-${{ github.ref }}/
+        workflow_conclusion: success
+
+    - name: Rearchive and split artifact
+      run: |
+        # compressed to artifact.7z.001, artifact.7z.002, ...
+        7z -v1g a "${{ matrix.artifact_name }}-${{ github.ref }}.7z" "${{ matrix.artifact_name }}-${{ github.ref }}/"
+
+    - name: Upload splitted archives to Release assets
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        tag: ${{ github.ref }} # == github.event.release.tag_name
+        file_glob: true
+        file: "./${{ matrix.artifact_name }}-${{ github.ref }}.7z.*"
