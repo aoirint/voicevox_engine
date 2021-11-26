@@ -627,6 +627,7 @@ jobs:
         shell: bash
         env:
           NUITKA_CACHE_DIR: ${{ matrix.nuitka_cache_path }}
+          PYTHONIOENCODING: utf-8
         run:
           python -m nuitka
             --standalone
