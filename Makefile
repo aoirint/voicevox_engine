@@ -82,33 +82,33 @@ run-linux-docker-nvidia-ubuntu20.04:
 
 
 # VOICEVOX Core env for test
-.PHONY: build-linux-docker-download-core-env-ubuntu18.04
-build-linux-docker-download-core-env-ubuntu18.04:
+.PHONY: build-linux-docker-download-core-env-ubuntu20.04
+build-linux-docker-download-core-env-ubuntu20.04:
 	docker buildx build . \
-		-t voicevox/voicevox_engine:download-core-env-ubuntu18.04 \
+		-t voicevox/voicevox_engine:download-core-env-ubuntu20.04 \
 		--target download-core-env \
 		--progress plain \
-		--build-arg BASE_IMAGE=ubuntu:18.04 $(ARGS)
+		--build-arg BASE_IMAGE=ubuntu:20.04 $(ARGS)
 
-.PHONY: run-linux-docker-download-core-env-ubuntu18.04
-run-linux-docker-download-core-env-ubuntu18.04:
+.PHONY: run-linux-docker-download-core-env-ubuntu20.04
+run-linux-docker-download-core-env-ubuntu20.04:
 	docker run --rm -it $(ARGS) \
-		voicevox/voicevox_engine:download-core-env-ubuntu18.04 $(CMD)
+		voicevox/voicevox_engine:download-core-env-ubuntu20.04 $(CMD)
 
 
 # ONNX Runtime env for test
-.PHONY: build-linux-docker-download-onnxruntime-env-ubuntu18.04
-build-linux-docker-download-onnxruntime-env-ubuntu18.04:
+.PHONY: build-linux-docker-download-onnxruntime-env-ubuntu20.04
+build-linux-docker-download-onnxruntime-env-ubuntu20.04:
 	docker buildx build . \
-		-t voicevox/voicevox_engine:download-onnxruntime-env-ubuntu18.04 \
+		-t voicevox/voicevox_engine:download-onnxruntime-env-ubuntu20.04 \
 		--target download-onnxruntime-env \
 		--progress plain \
-		--build-arg BASE_IMAGE=ubuntu:18.04 $(ARGS)
+		--build-arg BASE_IMAGE=ubuntu:20.04 $(ARGS)
 
-.PHONY: run-linux-docker-download-onnxruntime-env-ubuntu18.04
-run-linux-docker-download-onnxruntime-env-ubuntu18.04:
+.PHONY: run-linux-docker-download-onnxruntime-env-ubuntu20.04
+run-linux-docker-download-onnxruntime-env-ubuntu20.04:
 	docker run --rm -it $(ARGS) \
-		voicevox/voicevox_engine:download-onnxruntime-env-ubuntu18.04 $(CMD)
+		voicevox/voicevox_engine:download-onnxruntime-env-ubuntu20.04 $(CMD)
 
 
 # Python env for test
