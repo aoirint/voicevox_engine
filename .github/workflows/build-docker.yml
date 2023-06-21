@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - master
+      - patch-always-use-latest-buildcache-develop
   release:
     types:
       - created
