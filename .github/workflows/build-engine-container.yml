@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - master
+      - feature/docker-commonize-hash-of-same-feature-image-latest
   release:
     types:
       - created
