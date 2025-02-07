@@ -15,6 +15,7 @@ RUN <<EOF
     set -eux
 
     apt-get update
+    apt-get upgrade -y
     apt-get install -y \
         wget \
         unzip
@@ -77,6 +78,7 @@ RUN <<EOF
     set -eux
 
     apt-get update
+    apt-get upgrade -y
     apt-get install -y \
         wget \
         tar
@@ -130,6 +132,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 RUN <<EOF
     set -eux
     apt-get update
+    apt-get upgrade -y
     apt-get install -y \
         build-essential \
         libssl-dev \
@@ -193,6 +196,7 @@ RUN <<EOF
     set -eux
 
     apt-get update
+    apt-get upgrade -y
     apt-get install -y \
         git \
         wget \
