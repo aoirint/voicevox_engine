@@ -42,7 +42,7 @@ jobs:
         id: vars
         run: |
           : # releaseタグ名か、workflow_dispatchでのバージョン名が入る
-          echo "version=${{ github.event.release.tag_name || github.event.inputs.version }}" >> "$GITHUB_OUTPUT"
+          echo "version=${{ github.event.release.tag_name || inputs.version }}" >> "$GITHUB_OUTPUT"
 
           : # GitHub Container RegistryのDockerイメージリポジトリ
           echo "ghcr_repository=ghcr.io/${{ github.repository_owner }}/voicevox_engine" >> "$GITHUB_OUTPUT"

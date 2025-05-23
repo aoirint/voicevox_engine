@@ -18,7 +18,7 @@ jobs:
         uses: actions/stale@v9
         with:
           # on.schedule で起動した場合は `inputs.dryrun == null` であるため `debug-only: false` となる
-          debug-only: ${{ inputs.dryrun == 'true' }}
+          debug-only: ${{ inputs.dryrun }}
           any-of-labels: "状態：必要性議論"
           days-before-stale: 30
           days-before-close: -1
@@ -29,7 +29,7 @@ jobs:
         uses: actions/stale@v9
         with:
           # on.schedule で起動した場合は `inputs.dryrun == null` であるため `debug-only: false` となる
-          debug-only: ${{ inputs.dryrun == 'true' }}
+          debug-only: ${{ inputs.dryrun }}
           any-of-labels: "状態：設計,状態：実装者募集,状態：実装"
           days-before-stale: 180
           days-before-close: -1
