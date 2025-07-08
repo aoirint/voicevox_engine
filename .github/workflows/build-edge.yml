@@ -7,6 +7,7 @@ on:
   push:
     branches:
       - master
+      - feature/exp-edge-build-ci
     paths-ignore:
       - "docs/**"
       - "test/**"
