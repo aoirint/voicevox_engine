@@ -24,7 +24,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               workflow_id: 'build-engine.yml',
-              ref: 'master',
+              ref: context.sha,
               inputs: {
                 version: 'edge',
                 prerelease: true,
