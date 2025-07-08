@@ -1,0 +1,34 @@
+name: Release edge build
+
+# masterブランチが更新されるたびに開発版をビルドしてデプロイする。
+# バージョン（タグ）は`edge`。
+
+on:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - "docs/**"
+      - "test/**"
+
+jobs:
+  edge-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger workflow_dispatch
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'build-engine.yml',
+              ref: 'master',
+              inputs: {
+                version: 'edge',
+                prerelease: true,
+                push_dockerhub: true,
+              },
+            });
+            console.log('Triggered workflow_dispatch for edge');
